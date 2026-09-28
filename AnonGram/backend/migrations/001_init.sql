@@ -1,0 +1,8 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY,username VARCHAR(32) UNIQUE NOT NULL,display_name VARCHAR(80) NOT NULL DEFAULT '',password_hash TEXT NOT NULL,bio TEXT NOT NULL DEFAULT '',avatar_url TEXT NOT NULL DEFAULT '',created_at TIMESTAMPTZ NOT NULL DEFAULT now(),search_vector tsvector GENERATED ALWAYS AS(to_tsvector('simple',coalesce(username,'')||' '||coalesce(display_name,'')||' '||coalesce(bio,''))) STORED);
+CREATE INDEX IF NOT EXISTS users_search_idx ON users USING GIN(search_vector);
+CREATE TABLE IF NOT EXISTS chats(id UUID PRIMARY KEY DEFAULT gen_random_uuid(),title VARCHAR(120) NOT NULL,type VARCHAR(20) NOT NULL DEFAULT 'private',avatar_url TEXT NOT NULL DEFAULT '',created_at TIMESTAMPTZ NOT NULL DEFAULT now(),updated_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS chat_members(chat_id UUID REFERENCES chats(id) ON DELETE CASCADE,user_id UUID REFERENCES users(id) ON DELETE CASCADE,role VARCHAR(20) NOT NULL DEFAULT 'member',joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),PRIMARY KEY(chat_id,user_id));
+CREATE TABLE IF NOT EXISTS messages(id UUID PRIMARY KEY DEFAULT gen_random_uuid(),chat_id UUID REFERENCES chats(id) ON DELETE CASCADE,sender_id UUID REFERENCES users(id) ON DELETE CASCADE,body TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS messages_chat_time_idx ON messages(chat_id,created_at DESC);
+CREATE TABLE IF NOT EXISTS refresh_tokens(id UUID PRIMARY KEY DEFAULT gen_random_uuid(),user_id UUID REFERENCES users(id) ON DELETE CASCADE,token_hash TEXT NOT NULL,expires_at TIMESTAMPTZ NOT NULL,revoked_at TIMESTAMPTZ);

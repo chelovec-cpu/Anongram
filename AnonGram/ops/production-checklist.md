@@ -1,0 +1,12 @@
+# Production checklist
+- JWT secret 32+ random bytes
+- HTTPS/WSS in Nginx
+- Cloudflare DNS/CDN/rate limits
+- PostgreSQL backups + restore tests
+- Private S3 buckets + signed URLs
+- FCM credentials via secret manager
+- STUN/TURN for WebRTC
+- FFmpeg worker isolated from API
+- Prometheus/Grafana/Loki authentication
+- Refresh-token revocation and rotation
+- Abuse/rate limits before public launch
