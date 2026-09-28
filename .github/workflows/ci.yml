@@ -40,11 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+            - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: AnonGram/web/package-lock.json
 
       - run: npm install
       - run: npm run build
